@@ -26,12 +26,21 @@ exports.createTask = async (req, res) => {
   }
 };
 
-// Get all tasks for current user
+// Get all tasks (admin sees all, user sees only theirs)
 exports.getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({ userId: req.user.id }).sort({
-      createdAt: -1,
-    });
+    const User = require("../models/User");
+    const user = await User.findById(req.user.id);
+
+    let tasks;
+    if (user.role === "admin") {
+      // Admin sees all tasks
+      tasks = await Task.find().sort({ createdAt: -1 });
+    } else {
+      // User sees only their tasks
+      tasks = await Task.find({ userId: req.user.id }).sort({ createdAt: -1 });
+    }
+
     res.json({
       message: "Tasks fetched successfully",
       tasks,
@@ -69,14 +78,16 @@ exports.getTask = async (req, res) => {
 // Update task
 exports.updateTask = async (req, res) => {
   try {
+    const User = require("../models/User");
     let task = await Task.findById(req.params.id);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Check if user owns this task
-    if (task.userId.toString() !== req.user.id) {
+    // Check if user owns this task or is admin
+    const user = await User.findById(req.user.id);
+    if (task.userId.toString() !== req.user.id && user.role !== "admin") {
       return res
         .status(403)
         .json({ message: "Not authorized to update this task" });
@@ -100,14 +111,16 @@ exports.updateTask = async (req, res) => {
 // Delete task
 exports.deleteTask = async (req, res) => {
   try {
+    const User = require("../models/User");
     const task = await Task.findById(req.params.id);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Check if user owns this task
-    if (task.userId.toString() !== req.user.id) {
+    // Check if user owns this task or is admin
+    const user = await User.findById(req.user.id);
+    if (task.userId.toString() !== req.user.id && user.role !== "admin") {
       return res
         .status(403)
         .json({ message: "Not authorized to delete this task" });
