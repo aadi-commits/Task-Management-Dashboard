@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const User = require("./models/User");
 const Task = require("./models/Task");
+const authController = require("./controllers/authController");
 
 const app = express();
 
