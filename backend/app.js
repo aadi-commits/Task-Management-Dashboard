@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const User = require("./models/User");
-const Task = require("./models/Task");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -11,5 +10,8 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.json({ message: "Server is running!" });
 });
+
+// Auth routes
+app.use("/api/auth", authRoutes);
 
 module.exports = app;
