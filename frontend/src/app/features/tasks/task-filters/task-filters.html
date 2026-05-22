@@ -83,5 +83,22 @@
         Clear
       </button>
     }
+
+    <button
+      type="button"
+      (click)="refresh.emit()"
+      [disabled]="loading()"
+      [attr.aria-label]="loading() ? 'Refreshing tasks' : 'Refresh tasks'"
+      class="inline-flex items-center justify-center w-7 h-7 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+      title="Refresh"
+    >
+      @if (loading()) {
+        <app-spinner size="xs" />
+      } @else {
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      }
+    </button>
   </div>
 </div>
