@@ -3,7 +3,7 @@ const Task = require("../models/Task");
 // Create task
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, priority, dueDate } = req.body;
+    const { title, description, priority, status, dueDate } = req.body;
 
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
@@ -13,6 +13,7 @@ exports.createTask = async (req, res) => {
       title,
       description,
       priority: priority || "medium",
+      status: status || "todo",
       dueDate,
       userId: req.user.id,
     });
