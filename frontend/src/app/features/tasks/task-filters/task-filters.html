@@ -1,0 +1,87 @@
+<div
+  class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg"
+>
+  <div class="relative flex-1 sm:max-w-xs">
+    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8" />
+        <path stroke-linecap="round" d="m21 21-4.35-4.35" />
+      </svg>
+    </span>
+    <input
+      type="search"
+      [value]="search()"
+      (input)="onSearchInput($event)"
+      placeholder="Search tasks…"
+      aria-label="Search tasks"
+      class="w-full pl-9 pr-8 py-1.5 text-sm text-slate-900 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-950 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 focus:outline-none dark:text-white dark:placeholder:text-slate-500"
+    />
+    @if (search()) {
+      <button
+        type="button"
+        (click)="clearSearch()"
+        aria-label="Clear search"
+        class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    }
+  </div>
+
+  <div class="flex items-center gap-2 sm:ml-auto flex-wrap">
+    <span class="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+      Priority
+    </span>
+    <div class="flex p-0.5 bg-slate-100 dark:bg-slate-950 rounded-md">
+      <button
+        type="button"
+        (click)="setPriority(null)"
+        class="px-2.5 py-1 text-xs font-medium rounded transition-colors"
+        [class.bg-white]="priorityFilter() === null"
+        [class.dark:bg-slate-800]="priorityFilter() === null"
+        [class.text-slate-900]="priorityFilter() === null"
+        [class.dark:text-white]="priorityFilter() === null"
+        [class.shadow-sm]="priorityFilter() === null"
+        [class.text-slate-500]="priorityFilter() !== null"
+        [class.dark:text-slate-400]="priorityFilter() !== null"
+        [class.hover:text-slate-700]="priorityFilter() !== null"
+        [class.dark:hover:text-slate-200]="priorityFilter() !== null"
+      >
+        All
+      </button>
+      @for (p of priorities; track p) {
+        <button
+          type="button"
+          (click)="setPriority(p)"
+          class="px-2.5 py-1 text-xs font-medium rounded transition-colors"
+          [class.bg-white]="priorityFilter() === p"
+          [class.dark:bg-slate-800]="priorityFilter() === p"
+          [class.text-slate-900]="priorityFilter() === p"
+          [class.dark:text-white]="priorityFilter() === p"
+          [class.shadow-sm]="priorityFilter() === p"
+          [class.text-slate-500]="priorityFilter() !== p"
+          [class.dark:text-slate-400]="priorityFilter() !== p"
+          [class.hover:text-slate-700]="priorityFilter() !== p"
+          [class.dark:hover:text-slate-200]="priorityFilter() !== p"
+        >
+          {{ priorityLabel[p] }}
+        </button>
+      }
+    </div>
+
+    @if (hasActiveFilters()) {
+      <button
+        type="button"
+        (click)="clearAll()"
+        class="inline-flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+        Clear
+      </button>
+    }
+  </div>
+</div>
