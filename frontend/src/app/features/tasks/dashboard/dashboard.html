@@ -28,16 +28,79 @@
       </button>
     </div>
 
-    <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-12 text-center">
-      <div class="mx-auto w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
-        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
-        </svg>
+    <div class="grid grid-cols-3 gap-3 mb-6">
+      <div class="px-3.5 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          To Do
+        </p>
+        <p class="mt-0.5 text-lg font-semibold text-slate-900 dark:text-white">
+          {{ counts().todo }}
+        </p>
       </div>
-      <p class="text-sm font-medium text-slate-900 dark:text-white">Task board coming up next</p>
-      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-        Kanban columns and task cards will render here.
-      </p>
+      <div class="px-3.5 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          In Progress
+        </p>
+        <p class="mt-0.5 text-lg font-semibold text-slate-900 dark:text-white">
+          {{ counts()['in-progress'] }}
+        </p>
+      </div>
+      <div class="px-3.5 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          Completed
+        </p>
+        <p class="mt-0.5 text-lg font-semibold text-slate-900 dark:text-white">
+          {{ counts().completed }}
+        </p>
+      </div>
     </div>
+
+    @if (loading() && tasks().length === 0) {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="h-64 rounded-xl bg-slate-100 dark:bg-slate-900/40 animate-pulse"></div>
+        }
+      </div>
+    } @else if (tasks().length === 0) {
+      <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-12 text-center">
+        <div class="mx-auto w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 mb-3">
+          <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-slate-900 dark:text-white">No tasks yet</p>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Click "New task" to add your first one.
+        </p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <app-task-column
+          status="todo"
+          [tasks]="todoTasks()"
+          [isAdmin]="isAdmin()"
+          (statusChange)="onStatusChange($event)"
+          (view)="openTask($event)"
+        />
+        <app-task-column
+          status="in-progress"
+          [tasks]="inProgressTasks()"
+          [isAdmin]="isAdmin()"
+          (statusChange)="onStatusChange($event)"
+          (view)="openTask($event)"
+        />
+        <app-task-column
+          status="completed"
+          [tasks]="completedTasks()"
+          [isAdmin]="isAdmin()"
+          (statusChange)="onStatusChange($event)"
+          (view)="openTask($event)"
+        />
+      </div>
+    }
   </div>
+
+  @if (selectedTask(); as task) {
+    <app-task-detail [task]="task" [isAdmin]="isAdmin()" (close)="closeTask()" />
+  }
 </app-shell>

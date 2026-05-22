@@ -1,0 +1,40 @@
+<section
+  class="flex flex-col bg-slate-100/70 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-800/60"
+>
+  <header class="flex items-center justify-between px-4 py-3 border-b border-slate-200/60 dark:border-slate-800/60">
+    <div class="flex items-center gap-2">
+      <span
+        class="w-2 h-2 rounded-full"
+        [class.bg-slate-400]="status() === 'todo'"
+        [class.bg-amber-500]="status() === 'in-progress'"
+        [class.bg-emerald-500]="status() === 'completed'"
+      ></span>
+      <h3 class="text-sm font-semibold text-slate-900 dark:text-white">
+        {{ statusLabel[status()] }}
+      </h3>
+      <span class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+        {{ tasks().length }}
+      </span>
+    </div>
+  </header>
+
+  <div class="flex-1 p-2.5 space-y-2 min-h-[200px]">
+    @for (task of tasks(); track task._id) {
+      <app-task-card
+        [task]="task"
+        [isAdmin]="isAdmin()"
+        (statusChange)="onStatusChange(task._id, $event)"
+        (view)="onView(task)"
+      />
+    } @empty {
+      <div class="flex flex-col items-center justify-center py-10 text-center">
+        <div class="w-9 h-9 mb-2 flex items-center justify-center rounded-full bg-slate-200/70 dark:bg-slate-800">
+          <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4M12 16h.01M22 12c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2s10 4.48 10 10Z" />
+          </svg>
+        </div>
+        <p class="text-xs text-slate-400 dark:text-slate-500">Nothing here yet</p>
+      </div>
+    }
+  </div>
+</section>
