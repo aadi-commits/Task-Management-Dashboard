@@ -162,9 +162,47 @@ All endpoints are JSON. Protected routes require an `Authorization: Bearer <toke
 | Script         | What it does                            |
 |----------------|-----------------------------------------|
 | `npm start`    | Run the dev server on port 4200         |
-| `npm run build`| Build for production                    |
+| `npm run build`| Build for production (runs `set-env.js` first to bake the API URL into the bundle) |
 | `npm run watch`| Build in watch mode (development)       |
 | `npm test`     | Run the unit tests                      |
+
+---
+
+## Deployment
+
+The repo is wired for a split deploy: **Netlify** for the static Angular bundle, **Render / Railway / Fly** for the Node API, and **MongoDB Atlas** for the database.
+
+### Backend (Render / Railway / Fly)
+
+Set these environment variables on your backend host:
+
+| Variable      | Example value                                              |
+|---------------|------------------------------------------------------------|
+| `PORT`        | `5000` (or whatever the host expects)                      |
+| `MONGO_URI`   | `mongodb+srv://user:pass@cluster.mongodb.net/task_management` |
+| `JWT_SECRET`  | A long random string (use `openssl rand -hex 32`)          |
+| `FRONTEND_URL`| `https://your-app.netlify.app`                             |
+
+After the first deploy, run the seeder once against the production DB:
+
+```bash
+# locally, with the prod MONGO_URI exported
+MONGO_URI="..." JWT_SECRET="..." npm run seed
+```
+
+### Frontend (Netlify)
+
+The repo ships with a `netlify.toml` at the root so Netlify auto-detects everything:
+
+1. Push the repo to GitHub (already done).
+2. In Netlify dashboard → **Add new site → Import from Git** → pick this repo.
+3. Settings → **Environment variables** → add:
+   - `API_URL` = `https://your-backend-host/api`
+4. **Deploy**.
+
+How it works: Netlify runs `npm run build` which triggers `scripts/set-env.js` → that script reads `API_URL` and writes `src/environments/environment.prod.ts` → `ng build` then bakes that URL into the bundle. The file isn't committed (it's in `.gitignore`), so changing the backend URL is just an env-var edit + redeploy — no code change.
+
+> Note: the backend URL is **not** a secret. Like every SPA, the API endpoint is visible in the browser's Network tab. The reason for using an env var is workflow flexibility (staging vs prod, easy URL changes), not concealment. Real secrets — `MONGO_URI`, `JWT_SECRET` — only ever live on the backend host.
 
 ---
 
