@@ -5,7 +5,24 @@ const taskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 
-app.use(cors());
+// FRONTEND_URL can be a comma-separated list to support multiple origins
+// (e.g. local dev + preview deploy). Defaults to localhost during development.
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:4200")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow same-origin / curl / Postman (no Origin header)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 app.get("/", (req, res) => {
