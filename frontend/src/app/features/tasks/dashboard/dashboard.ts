@@ -6,6 +6,7 @@ import { TaskService } from '../../../core/services/task.service';
 import { Task, TaskPayload, TaskStatus } from '../../../core/models/task.model';
 import { AppShellComponent } from '../../../shared/components/app-shell/app-shell';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { SkeletonColumnComponent } from '../../../shared/components/skeleton-column/skeleton-column';
 import { TaskColumnComponent } from '../task-column/task-column';
 import { TaskDetailComponent } from '../task-detail/task-detail';
 import { TaskFiltersComponent } from '../task-filters/task-filters';
@@ -20,6 +21,7 @@ import { TaskFormComponent } from '../task-form/task-form';
     TaskFiltersComponent,
     TaskFormComponent,
     ConfirmDialogComponent,
+    SkeletonColumnComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
@@ -48,6 +50,10 @@ export class DashboardComponent implements OnInit {
   protected readonly completedTasks = computed(() => this.byStatus('completed'));
 
   ngOnInit(): void {
+    this.refresh();
+  }
+
+  protected refresh(): void {
     this.taskService.fetchAll().subscribe({
       error: (err) => this.toastr.error(err.message || 'Failed to load tasks'),
     });

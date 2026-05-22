@@ -57,14 +57,14 @@
     </div>
 
     @if (allTasks().length > 0) {
-      <app-task-filters />
+      <app-task-filters (refresh)="refresh()" />
     }
 
     @if (loading() && allTasks().length === 0) {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        @for (i of [1, 2, 3]; track i) {
-          <div class="h-64 rounded-xl bg-slate-100 dark:bg-slate-900/40 animate-pulse"></div>
-        }
+        <app-skeleton-column />
+        <app-skeleton-column />
+        <app-skeleton-column />
       </div>
     } @else if (allTasks().length === 0) {
       <div class="rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-12 text-center">
