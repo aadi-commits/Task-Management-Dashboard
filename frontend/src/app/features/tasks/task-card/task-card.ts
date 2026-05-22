@@ -27,6 +27,8 @@ export class TaskCardComponent {
 
   readonly statusChange = output<TaskStatus>();
   readonly view = output<void>();
+  readonly edit = output<void>();
+  readonly delete = output<void>();
 
   protected readonly menuOpen = signal(false);
   protected readonly statuses = TASK_STATUSES;
@@ -75,5 +77,17 @@ export class TaskCardComponent {
     if (status !== this.task().status) {
       this.statusChange.emit(status);
     }
+  }
+
+  protected triggerEdit(event: MouseEvent): void {
+    event.stopPropagation();
+    this.menuOpen.set(false);
+    this.edit.emit();
+  }
+
+  protected triggerDelete(event: MouseEvent): void {
+    event.stopPropagation();
+    this.menuOpen.set(false);
+    this.delete.emit();
   }
 }

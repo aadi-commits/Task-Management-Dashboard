@@ -25,6 +25,8 @@
         [isAdmin]="isAdmin()"
         (statusChange)="onStatusChange(task._id, $event)"
         (view)="onView(task)"
+        (edit)="onEdit(task)"
+        (delete)="onDelete(task)"
       />
     } @empty {
       <div class="flex flex-col items-center justify-center py-10 text-center">
