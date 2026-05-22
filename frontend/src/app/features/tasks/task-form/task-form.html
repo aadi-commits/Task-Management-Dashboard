@@ -1,0 +1,177 @@
+<div
+  class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+  (click)="onBackdropClick()"
+  role="dialog"
+  aria-modal="true"
+>
+  <div
+    class="relative w-full sm:max-w-lg max-h-[92vh] flex flex-col bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl border-t sm:border border-slate-200 dark:border-slate-800 animate-scale-in"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="flex items-center justify-between gap-3 px-5 sm:px-6 pt-5 pb-3">
+      <div>
+        <h2 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+          {{ heading() }}
+        </h2>
+        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+          @if (isEdit()) {
+            Update the details below and save.
+          } @else {
+            Fill in the details to add a task to your board.
+          }
+        </p>
+      </div>
+      <button
+        type="button"
+        (click)="close.emit()"
+        [disabled]="busy()"
+        class="shrink-0 -mt-1 -mr-1 p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 disabled:opacity-50"
+        aria-label="Close"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex-1 flex flex-col min-h-0">
+      <div class="flex-1 overflow-y-auto px-5 sm:px-6 pb-5 space-y-4">
+        <div>
+          <label for="task-title" class="block mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">
+            Title <span class="text-rose-500">*</span>
+          </label>
+          <input
+            id="task-title"
+            type="text"
+            formControlName="title"
+            placeholder="e.g. Review the Q2 budget"
+            class="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-md placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 focus:outline-none dark:bg-slate-950 dark:text-white dark:border-slate-700 dark:placeholder:text-slate-500"
+            [class.border-rose-500]="title.touched && title.invalid"
+            [class.focus:ring-rose-500]="title.touched && title.invalid"
+          />
+          @if (hasError(title, 'required')) {
+            <p class="mt-1.5 text-xs text-rose-500">Title is required.</p>
+          } @else if (hasError(title, 'minlength')) {
+            <p class="mt-1.5 text-xs text-rose-500">Title must be at least 3 characters.</p>
+          } @else if (hasError(title, 'maxlength')) {
+            <p class="mt-1.5 text-xs text-rose-500">Title can't exceed 120 characters.</p>
+          }
+        </div>
+
+        <div>
+          <label for="task-description" class="block mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">
+            Description
+          </label>
+          <textarea
+            id="task-description"
+            formControlName="description"
+            rows="4"
+            placeholder="Add any helpful context, links or notes…"
+            class="w-full px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-md placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 focus:outline-none resize-y dark:bg-slate-950 dark:text-white dark:border-slate-700 dark:placeholder:text-slate-500"
+            [class.border-rose-500]="description.touched && description.invalid"
+          ></textarea>
+          @if (hasError(description, 'maxlength')) {
+            <p class="mt-1.5 text-xs text-rose-500">Description can't exceed 2000 characters.</p>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <p class="block mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">
+              Priority
+            </p>
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-950 rounded-md">
+              @for (p of priorities; track p) {
+                <label
+                  class="relative flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded cursor-pointer transition-colors"
+                  [class.bg-white]="form.controls.priority.value === p"
+                  [class.dark:bg-slate-800]="form.controls.priority.value === p"
+                  [class.text-slate-900]="form.controls.priority.value === p"
+                  [class.dark:text-white]="form.controls.priority.value === p"
+                  [class.shadow-sm]="form.controls.priority.value === p"
+                  [class.text-slate-500]="form.controls.priority.value !== p"
+                  [class.dark:text-slate-400]="form.controls.priority.value !== p"
+                  [class.hover:text-slate-700]="form.controls.priority.value !== p"
+                  [class.dark:hover:text-slate-200]="form.controls.priority.value !== p"
+                >
+                  <input type="radio" formControlName="priority" [value]="p" class="sr-only" />
+                  {{ priorityLabel[p] }}
+                </label>
+              }
+            </div>
+          </div>
+
+          <div>
+            <p class="block mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">
+              Status
+            </p>
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-950 rounded-md">
+              @for (s of statuses; track s) {
+                <label
+                  class="relative flex items-center justify-center px-2 py-1.5 text-xs font-medium rounded cursor-pointer transition-colors text-center"
+                  [class.bg-white]="form.controls.status.value === s"
+                  [class.dark:bg-slate-800]="form.controls.status.value === s"
+                  [class.text-slate-900]="form.controls.status.value === s"
+                  [class.dark:text-white]="form.controls.status.value === s"
+                  [class.shadow-sm]="form.controls.status.value === s"
+                  [class.text-slate-500]="form.controls.status.value !== s"
+                  [class.dark:text-slate-400]="form.controls.status.value !== s"
+                  [class.hover:text-slate-700]="form.controls.status.value !== s"
+                  [class.dark:hover:text-slate-200]="form.controls.status.value !== s"
+                >
+                  <input type="radio" formControlName="status" [value]="s" class="sr-only" />
+                  {{ statusLabel[s] }}
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="task-due" class="block mb-1.5 text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-400">
+            Due date
+          </label>
+          <input
+            id="task-due"
+            type="date"
+            formControlName="dueDate"
+            class="w-full sm:max-w-[14rem] px-3 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-md focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 focus:outline-none dark:bg-slate-950 dark:text-white dark:border-slate-700"
+          />
+          <p class="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+            Optional — leave blank if there's no deadline.
+          </p>
+        </div>
+      </div>
+
+      <footer class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 px-5 sm:px-6 py-3 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-slate-800 rounded-b-2xl">
+        <button
+          type="button"
+          (click)="close.emit()"
+          [disabled]="busy()"
+          class="px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="busy()"
+          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-sm font-medium text-white bg-slate-900 dark:bg-brand-600 rounded-md hover:bg-slate-800 dark:hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        >
+          @if (busy()) {
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z"></path>
+            </svg>
+            <span>Saving…</span>
+          } @else {
+            @if (isEdit()) {
+              Save changes
+            } @else {
+              Create task
+            }
+          }
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

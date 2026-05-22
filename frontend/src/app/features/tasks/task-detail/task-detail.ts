@@ -25,6 +25,8 @@ export class TaskDetailComponent {
   readonly isAdmin = input(false);
 
   readonly close = output<void>();
+  readonly edit = output<void>();
+  readonly delete = output<void>();
 
   protected readonly statusLabel = STATUS_LABEL;
   protected readonly priorityLabel = PRIORITY_LABEL;

@@ -15,6 +15,8 @@ export class TaskColumnComponent {
 
   readonly statusChange = output<{ taskId: string; status: TaskStatus }>();
   readonly view = output<Task>();
+  readonly edit = output<Task>();
+  readonly delete = output<Task>();
 
   protected readonly statusLabel = STATUS_LABEL;
 
@@ -24,5 +26,13 @@ export class TaskColumnComponent {
 
   protected onView(task: Task): void {
     this.view.emit(task);
+  }
+
+  protected onEdit(task: Task): void {
+    this.edit.emit(task);
+  }
+
+  protected onDelete(task: Task): void {
+    this.delete.emit(task);
   }
 }
