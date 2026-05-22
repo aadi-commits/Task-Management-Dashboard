@@ -2,13 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 
-type QuickLinkIcon = 'docs' | 'keyboard' | 'github';
+type QuickLinkIcon = 'docs' | 'github';
 
 interface QuickLink {
   label: string;
   href: string;
   icon: QuickLinkIcon;
 }
+
+const REPO_URL = 'https://github.com/aadi-commits/Task-Management-Dashboard';
 
 @Component({
   selector: 'app-shell',
@@ -36,9 +38,8 @@ export class AppShellComponent {
   });
 
   protected readonly quickLinks: QuickLink[] = [
-    { label: 'Documentation', href: '#', icon: 'docs' },
-    { label: 'Keyboard shortcuts', href: '#', icon: 'keyboard' },
-    { label: 'GitHub repo', href: '#', icon: 'github' },
+    { label: 'Documentation', href: `${REPO_URL}#readme`, icon: 'docs' },
+    { label: 'GitHub repo', href: REPO_URL, icon: 'github' },
   ];
 
   protected toggleDrawer(): void {
