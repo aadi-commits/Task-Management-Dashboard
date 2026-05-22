@@ -8,6 +8,7 @@ import { AppShellComponent } from '../../../shared/components/app-shell/app-shel
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { TaskColumnComponent } from '../task-column/task-column';
 import { TaskDetailComponent } from '../task-detail/task-detail';
+import { TaskFiltersComponent } from '../task-filters/task-filters';
 import { TaskFormComponent } from '../task-form/task-form';
 
 @Component({
@@ -16,6 +17,7 @@ import { TaskFormComponent } from '../task-form/task-form';
     AppShellComponent,
     TaskColumnComponent,
     TaskDetailComponent,
+    TaskFiltersComponent,
     TaskFormComponent,
     ConfirmDialogComponent,
   ],
@@ -29,8 +31,10 @@ export class DashboardComponent implements OnInit {
 
   protected readonly isAdmin = this.auth.isAdmin;
   protected readonly loading = this.taskService.loading;
-  protected readonly tasks = this.taskService.tasks;
+  protected readonly allTasks = this.taskService.tasks;
+  protected readonly tasks = this.taskService.filteredTasks;
   protected readonly counts = this.taskService.counts;
+  protected readonly hasActiveFilters = this.taskService.hasActiveFilters;
 
   protected readonly selectedTask = signal<Task | null>(null);
   protected readonly formOpen = signal(false);
@@ -109,6 +113,10 @@ export class DashboardComponent implements OnInit {
   protected cancelDelete(): void {
     if (this.deleteBusy()) return;
     this.taskPendingDelete.set(null);
+  }
+
+  protected clearFilters(): void {
+    this.taskService.clearFilters();
   }
 
   protected confirmDelete(): void {

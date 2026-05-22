@@ -6,6 +6,7 @@ import {
   Task,
   TaskListResponse,
   TaskPayload,
+  TaskPriority,
   TaskResponse,
   TaskStatus,
 } from '../models/task.model';
@@ -17,11 +18,33 @@ export class TaskService {
 
   private readonly _tasks = signal<Task[]>([]);
   private readonly _loading = signal(false);
+  private readonly _search = signal('');
+  private readonly _priorityFilter = signal<TaskPriority | null>(null);
 
   readonly tasks = this._tasks.asReadonly();
   readonly loading = this._loading.asReadonly();
+  readonly search = this._search.asReadonly();
+  readonly priorityFilter = this._priorityFilter.asReadonly();
+
+  readonly hasActiveFilters = computed(
+    () => this._search().trim().length > 0 || this._priorityFilter() !== null,
+  );
+
+  readonly filteredTasks = computed(() => {
+    const q = this._search().trim().toLowerCase();
+    const p = this._priorityFilter();
+    return this._tasks().filter((t) => {
+      if (p && t.priority !== p) return false;
+      if (q) {
+        const hay = (t.title + ' ' + (t.description ?? '')).toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  });
+
   readonly counts = computed(() => {
-    const t = this._tasks();
+    const t = this.filteredTasks();
     return {
       total: t.length,
       todo: t.filter((x) => x.status === 'todo').length,
@@ -29,6 +52,19 @@ export class TaskService {
       completed: t.filter((x) => x.status === 'completed').length,
     };
   });
+
+  setSearch(value: string): void {
+    this._search.set(value);
+  }
+
+  setPriorityFilter(priority: TaskPriority | null): void {
+    this._priorityFilter.set(priority);
+  }
+
+  clearFilters(): void {
+    this._search.set('');
+    this._priorityFilter.set(null);
+  }
 
   fetchAll(): Observable<TaskListResponse> {
     this._loading.set(true);
@@ -69,5 +105,6 @@ export class TaskService {
 
   clear(): void {
     this._tasks.set([]);
+    this.clearFilters();
   }
 }
